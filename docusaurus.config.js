@@ -65,12 +65,6 @@ const config = {
         title: "Geuni620",
         items: [
           {
-            type: "docSidebar",
-            sidebarId: "tutorialSidebar",
-            position: "left",
-            label: "Tutorial",
-          },
-          {
             href: "https://geuni620.github.io/",
             label: "Blog",
             position: "right",
