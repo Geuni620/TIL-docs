@@ -8,8 +8,7 @@ import {themes as prismThemes} from "prism-react-renderer";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Geuni's TIL",
-  tagline: "매일매일 기록하는 것을 지향합니다.",
+  title: "오늘도 배웠습니다.",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
@@ -62,14 +61,8 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      // Replace with your project's social card
-      image: "img/docusaurus-social-card.jpg",
       navbar: {
-        title: "Geuni's TIL",
-        logo: {
-          alt: "My Site Logo",
-          src: "img/logo.svg",
-        },
+        title: "Geuni620",
         items: [
           {
             type: "docSidebar",
