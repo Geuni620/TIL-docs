@@ -1,0 +1,36 @@
+### Swiper
+
+- 캐러셀을 만들 일이 있어서 Swiper를 사용하려고 했다.
+  - 기존에 react/swiper가 존재했으나, 사라질 수 있으니, Web-Component로 만들어서 사용을 권장했다.
+  - 해당 내용을 참고하다가, 동료분이 구현한 Swiper가 있어서 인용했다.
+
+```TSX
+
+```
+
+<br />
+
+### React Children
+
+- 동료분의 코드를 보다가 재밌는 부분을 발견했다.
+- 마침 트위터에 ko.react 번역이 끝났다고 하여, ko.react를 읽어보았다.
+
+<br />
+
+### Don't use `Object` as a type. The `Object` type actually means "any non-nullish value", so it is marginally better than `unknown`.
+
+다음과 같은 에러가 났다.
+
+[Do's and Don'ts](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#general-types)
+
+- typescript에선, Object 대신 object를 사용하라고 권한다.
+
+<br />
+
+### main을 제외한 branch 일괄 삭제하기
+
+- git branch | grep -v "main" | xargs git branch -D
+
+- git branch: 현재 로컬의 모든 브랜치 목록을 가져옵니다.
+- grep -v "main": 'main'을 제외한 모든 라인을 선택합니다.
+- xargs git branch -D: 선택된 각 브랜치에 대해 git branch -D 명령을 실행하여 강제 삭제합니다.
