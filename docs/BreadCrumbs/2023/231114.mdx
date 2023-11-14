@@ -1,0 +1,33 @@
+### CSS
+
+요즘은 마크업 작업을 많이한다.
+오늘도 translate으로 y값의 경계를 넘어가도록 설정해주었다.
+margin으로 값을 조정해주는게 좋을 지, 고민하다가 translate를 쓰는게 간단할 것 같아서 적용했다.
+
+또한, 경계를 벗어나게 배경색을 정해주어야할 때가 있었다.
+예를 들면 다음과 같다.
+
+```TSX
+    <TabBar
+    tabContents={[
+        <TasksSummary key="summary" />,
+        <TaskDetail key="detail" />,
+    ]}
+    />
+```
+
+탭으로 구분되는 detail과 summary가 있다.
+여기서 Detail을 선택했는데, 해당 경계 외부로 background 색 전체를 덮어줘야할 때가 있다.
+예를 들면, 1084px로 width값을 적용해두었는데, 자식 컴포넌트에서 background는 w-full로 했을 때 1084를 벗어나지 못한다.
+이럴 때 어떻게 하는게 좋을지 고민했다.
+결국 부모요소의 1084px를 제거하고, BgColorWrapper 를 만들어 Children으로 element를 내려주는 방법으로 적용한 후,
+Children마다 1084px를 하나씩 매겨주게 했다.
+
+{/* 코드 추가할 것 */}
+{/* 주도님 코드도 추가할 것 */}
+
+<br/ >
+
+### 참고자료
+
+[translate() mdn](https://developer.mozilla.org/ko/docs/Web/CSS/transform-function/translate)
