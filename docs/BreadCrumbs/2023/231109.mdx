@@ -9,6 +9,119 @@
 하지만, 이상하게 next.js 13 app dir에선 width값이 변경되지 않았다. 즉, style이 먹히지 않는 듯 했다.
 현재는 swiper/react로 적용해주었다.
 
+```TSX
+// SwiperContainer.tsx
+"use client"
+
+import { Children } from 'react';
+import { Navigation } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+interface SwiperSlideBoxProps {
+  onLoadSwiper: (swiper: any) => void;
+  children: React.ReactNode;
+  slidesPerView?: number;
+}
+
+export const SwiperContainer: React.FC<SwiperSlideBoxProps> = ({
+  children,
+  onLoadSwiper,
+  slidesPerView = 4,
+}) => {
+  return (
+    <>
+      <Swiper
+        modules={[Navigation]}
+        slidesPerView={slidesPerView}
+        navigation
+        onSwiper={(swiper) => onLoadSwiper(swiper)}
+        className="overflow-hidden rounded-[21px]"
+      >
+        {Children.map(children, (child) => {
+          return <SwiperSlide>{child}</SwiperSlide>;
+        })}
+      </Swiper>
+    </>
+  );
+};
+```
+
+<br />
+
+```TSX
+// CarouselViewContainer.tsx
+'use client';
+
+import { CarouselBox } from 'app/components/carousel/CarouselBox';
+import { SwiperContainer } from 'lib/swiper/SwiperSlideBox';
+import { useSwiper } from 'lib/swiper/useSwiper';
+import Image from 'next/image';
+
+interface Item {
+  id: number;
+  title: string;
+  description: string;
+}
+
+interface CarouselViewContainerProps {
+  title: string;
+  items: Item[];
+}
+
+export const CarouselViewContainer: React.FC<CarouselViewContainerProps> = ({
+  items,
+  title,
+}) => {
+  const { onLoadSwiper, handleClickPrevArrow, handleClickNextArrow } =
+    useSwiper();
+
+  return (
+    <div className="relative mt-[38px]">
+      <h2 className="text-[32px] font-bold leading-[56px] tracking-[-1.28px]">
+        {title}
+      </h2>
+      <SwiperContainer onLoadSwiper={onLoadSwiper}>
+        {items.map(({ id, title, description }) => (
+          <CarouselBox key={id} title={title} description={description} />
+        ))}
+      </SwiperContainer>
+      <Image
+        className="absolute left-[-2.5%] top-1/2 z-50 -translate-y-1/2 cursor-pointer"
+        onClick={handleClickPrevArrow}
+        width={56}
+        height={56}
+        src="icon/swiper/prev-button.svg"
+        alt="prev button"
+      />
+      <Image
+        className="absolute right-[-1.8%] top-1/2 z-50 -translate-y-1/2 cursor-pointer"
+        onClick={handleClickNextArrow}
+        width={56}
+        height={56}
+        src="icon/swiper/next-button.svg"
+        alt="next button"
+      />
+    </div>
+  );
+};
+```
+
+- 사용은 다음과 같이 적용했다.
+
+```TSX
+import { CarouselViewContainer } from 'app/components/carousel/CarouselViewContainer';
+import { OFFICESPACE } from 'constant/main';
+
+export const OfficeSpace: React.FC = () => {
+  return (
+    <CarouselViewContainer
+    title="세상 힙쟁이 다 모여있는 합정역 7번 출구, 쾌적한 사무공간"
+    items={OFFICESPACE}
+    />
+  );
+};
+```
+
 <br />
 
 ### blog 에러
@@ -17,5 +130,3 @@
 - Notion을 15분마다 재배포해주는 blog인데, 원인을 파악해보니, 썸네일이 들어가지 않아서 발생한 에러였다.
 - 서버가 다운되거나 웹사이트가 멈추진 않았고, 단지 ErrorBoundary에 걸리기만 했다.
 - log 시스템이 있다면 좋을 것 같다, sentry나, data-dog 같은 것들.
-
-<br />

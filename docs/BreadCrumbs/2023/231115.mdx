@@ -1,5 +1,85 @@
 ### middleware + Link tag
 
+- 기존에는 layout.tsx에 다음과 같이 구성했었다.
+
+```TSX
+import './globals.css';
+import 'swiper/css';
+
+import { Footer } from 'app/components/footer';
+import { Nav } from 'app/components/nav';
+import { notoSansKR } from 'utils/font';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={notoSansKR.className}>
+        <main className="mx-auto bg-[#EDEDED]">
+          <Nav />
+          {children}
+          <Footer />
+        </main>
+      </body>
+    </html>
+  );
+}
+```
+
+- 이제는 다음을 적용할 수 없다.
+- 루트(/)와 획기획소개페이지(hoik)에선 Footer를 동일하게 사용한다.
+
+* 하지만 제조도(jejodo)에선 Footer를 사용하지 않는다.
+
+<br />
+
+- 먼저 떠오른건 client component에서 사용하는 usePathname을 통해 path를 읽어서 처리하려고 했다.
+- 하지만, 여긴 server components다. 어떻게 해야할까?
+
+<br />
+
+[custom header 값 심어주기](https://github.com/Geuni620/TIL/blob/main/BreadCrumbs/230725.md#custom-header-%EA%B0%92-%EC%8B%AC%EC%96%B4%EC%A3%BC%EA%B8%B0)
+
+- 이전에 기록해 두었던 글이 생각나서 검색해보니 있었다.
+- 결국 usePathname이나, useRouter를 사용할 수 없으니, middleware를 사용했다.
+
+```TSX
+// src/middleware.ts
+import { NextResponse } from 'next/server';
+
+export function middleware(request: Request) {
+  const requestHeaders = new Headers(request.headers);
+
+  requestHeaders.set('x-url', request.url);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+}
+```
+
+```TSX
+const headerUrl = headers().get('x-url') || '';
+const url = new URL(headerUrl).pathname;
+
+console.log("url", url) // /hoik 또는 /jejodo
+```
+
+<br />
+
+근데 의아한게 하나 발견됐다. Link tag를 타고 이동하면 middleware가 실행되지 않는다.
+그래서 log를 찍어보니 middleware가 온전히 동작하지 않았다.
+현재는 a 태그를 통해 이동하고 있다. vercel issue 탭을 조금 확인해봐야할 것 같다.
+
+<br />
+
 ### relative
 
-###
+- 오늘 디자인 중에서, 배경이미지를 넣고 물결표시를 넣어줘야하는 부분이 있었다.
+- 어제처럼 translate를 사용하려다가, relative 적용 후, top을 사용해서 원하는 결과를 얻었다.
+- 프론트에선 역시 css가 가장 어렵다...

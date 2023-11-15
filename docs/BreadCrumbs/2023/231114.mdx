@@ -19,17 +19,45 @@ margin으로 값을 조정해주는게 좋을 지, 고민하다가 translate를 
 탭으로 구분되는 detail과 summary가 있다.
 여기서 Detail을 선택했는데, 해당 경계 외부로 background 색 전체를 덮어줘야할 때가 있다.
 예를 들면, 1084px로 width값을 적용해두었는데, 자식 컴포넌트에서 background는 w-full로 했을 때 1084를 벗어나지 못한다.
+
+<br />
+
 이럴 때 어떻게 하는게 좋을지 고민했다.
 결국 부모요소의 1084px를 제거하고, BgColorWrapper 를 만들어 Children으로 element를 내려주는 방법으로 적용한 후,
 Children마다 1084px를 하나씩 매겨주게 했다.
 
-{/* 코드 추가할 것 */}
-{/* 주도님 코드도 추가할 것 */}
+```TSX
+import { BoothOperation } from 'app/components/task/detail/section/BoothOperation';
+import { CompletedProposals } from 'app/components/task/detail/section/CompletedProposals';
+import { IntroBootConcept } from 'app/components/task/detail/section/IntroBootConcept';
+import { ProblemAnalysis } from 'app/components/task/detail/section/ProblemAnalysis';
+import { StructureDesign } from 'app/components/task/detail/section/StructureDesign';
+import { SweetSpot } from 'app/components/task/detail/section/SweetSpot';
+import { BgGrayWrapper } from 'app/components/wrapper/BgGrayWrapper';
+import { BgWhiteWrapper } from 'app/components/wrapper/BgWhiteWrapper';
+import { WidthLayoutWrapper } from 'app/components/wrapper/WidthLayoutWrapper';
+
+export const TaskDetail = () => {
+  return (
+    <>
+    <BgWhiteWrapper>
+    <WidthLayoutWrapper>
+        <ProblemAnalysis />
+    </WidthLayoutWrapper>
+    </BgWhiteWrapper>
+
+    <BgGrayWrapper height="h-[800px]">
+    <WidthLayoutWrapper className="pb-[252px] pt-[120px]">
+        <SweetSpot />
+    </WidthLayoutWrapper>
+    </BgGrayWrapper>
+    </>
+  );
+};
+```
+
+- 다음과 같이 각각의 경계를 WidthLayoutWrapper를 통해 감싸주었다.
 
 <br/ >
-
-### Grid
-
-### 참고자료
 
 [translate() mdn](https://developer.mozilla.org/ko/docs/Web/CSS/transform-function/translate)

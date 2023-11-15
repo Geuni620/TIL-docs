@@ -5,7 +5,60 @@
   - 해당 내용을 참고하다가, 동료분이 구현한 Swiper가 있어서 인용했다.
 
 ```TSX
+// SwiperContainer.tsx
+import { Children, useEffect, useRef } from 'react';
+import { SwiperRef } from 'swiper';
+import { register } from 'swiper/element';
 
+interface SwiperContainerProps {
+  on: any;
+  children: React.ReactNode;
+}
+
+export const SwiperContainer: React.FC<SwiperContainerProps> = ({
+  children,
+  ...swiperOptions
+}) => {
+  console.log('swiperOptions', swiperOptions);
+  const swiperRef = useRef<SwiperRef>(null);
+
+  useEffect(() => {
+    register();
+    if (!swiperRef.current) return;
+    const swiperEl = swiperRef.current;
+
+    const swiperParams = {
+      ...swiperOptions,
+    };
+
+    // now we need to assign all parameters to Swiper element
+    Object.assign(swiperEl, swiperParams);
+
+    // and now initialize it
+    swiperEl.initialize();
+  }, [swiperOptions]);
+
+  return (
+    <swiper-container ref={swiperRef} init={false}>
+      {Children.map(children, (child) => {
+        return <swiper-slide>{child}</swiper-slide>;
+      })}
+    </swiper-container>
+  );
+};
+```
+
+- 위와 같이 작성한 후, 캐러셀 할 요소를 SwiperWrapper로 감싸주었다.
+
+```TSX
+  <SwiperContainer
+    on={{
+      init: onSwiperInit,
+      slideChange: onSlideChange,
+    }}
+  >
+    {children}
+  </SwiperContainer>
 ```
 
 <br />
