@@ -1,0 +1,53 @@
+### tailwind.config.js에서 plugin과 theme의 차이가 뭘까?
+
+```JS
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const plugin = require('tailwindcss/plugin');
+
+/** @type {import('tailwindcss').Config} */
+
+module.exports = {
+  content: [
+    './components/**/*.{js,ts,jsx,tsx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        black: '#000000',
+        JGray: '#999999',
+        JGreen: '#22c55e',
+        error: '#ff5858',
+        correct: '#4498F2',
+        Jyellow: '#ffdc3c',
+        hoverBg: '#eeeeee',
+        tableBg: '#F7F7F7',
+        giRokE1: '#FAEFE4',
+      },
+    },
+  },
+  plugins: [
+    plugin(function ({ addComponents }) {
+      addComponents({
+        '.modalPosition': {
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+        },
+      });
+    }),
+  ],
+};
+```
+
+- tailwind에서 plugin과 theme/extend 의 차이는 뭘까?
+- 먼저, extends가 아닌 theme에 colors를 추가하면, 기존에 bg-red-500과 같은 tailwind에서 기본으로 제공해주는 클래스를 사용할 수 없다.
+- 그래서 꼭 추가하기 위해선 extend 내에 colors를 선언하고, 추가해주어야한다.
+
+<br />
+
+- 그럼 plugin은 뭘까?
+- 위에서 볼 수 있듯이, custom한 설정들을 추가해주는 곳이다.
+- 예를들어, modalPosition은 위와 같이 modal이 열렸을 때, 정 중앙을 잡아주기 위해서 다음과 같이 설정했다.
+- 여러 유틸리티(위치/색상/크기 등등)들이 결합되어 하나의 속성을 이루게 되는 경우, plugin을 사용해야한다.
