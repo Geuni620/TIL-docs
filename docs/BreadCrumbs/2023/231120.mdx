@@ -1,0 +1,36 @@
+### flex-grow
+
+- 3개의 네모박스가 있는데, flex를 선언한 상태
+- 선언된 상태에서, 가로기준 start를 하면 왼쪽으로, end를 하면 오른쪽 center는 가운데다.
+- 하지만, center긴 한데, 가운데는 너비를 넓히지 않고, 양 옆이 알아서 넓어지길 바랐다.
+
+```tsx
+function App() {
+  // ... 기존 코드
+
+  return (
+    <div className="flex h-screen w-screen bg-red-500">
+      <button
+        className="flex-grow rounded-[20px] bg-blue-500 p-10 text-2xl text-white hover:bg-yellow-500"
+        onClick={handlePrevClick}
+      >
+        이전
+      </button>
+      <div className="flex flex-none h-[500px] w-[500px] items-center justify-center rounded-[20px] bg-white">
+        {MockingItemData[currentIndex].id}
+      </div>
+      <button
+        className="flex-grow rounded-[20px] bg-blue-500 p-10 text-2xl text-white hover:bg-yellow-500"
+        onClick={handleNextClick}
+      >
+        다음
+      </button>
+    </div>
+  );
+}
+```
+
+- flex-grow를 사용해서 구현했다.
+- flew도 여러 종류가 있다. flex-grow flex-shrink flex-basis 등등
+
+[flex-grow mdx](https://developer.mozilla.org/ko/docs/Web/CSS/flex-grow)
