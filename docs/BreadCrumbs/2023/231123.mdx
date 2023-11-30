@@ -1,4 +1,73 @@
-### api폴더와 app디렉토리 차이
+### 서버환경과 클라이언트 환경 BaseURL
 
-- api폴더는 /api/login과 같이 작성하면 안됨, 해당 baseurl을 꼭 작성해줘야한다.
-- app 디렉토리의 client components에서는 /api/login과 같이 작성해도 된다.
+- Next.js에서 클라이언트와 서버를 모두 구현할 경우 헷갈리는 경우가 발생한다
+- 특히, baseUrl이 가장 헷갈린다.
+
+```TSX
+// api폴더
+fetch("/api/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ email, password }),
+});
+```
+
+- api폴더내에서 다음과 같이 작성하면 어떻게 될까?
+- BaseURL을 생략함므로써, 원하는대로 동작하지 않을 가능성이 농후하다.
+- 즉, 서버 환경이라면 baseURL을 작성해주어야한다.
+
+<br />
+
+- 반대로 클라이언트 환경에서는 baseURL을 작성하지 않아도 된다.
+
+```TSX
+// app폴더
+fetch("/api/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ email, password }),
+});
+```
+
+- 동일하게 작성했지만 이 경우에는 baseURL을 작성하지 않아도 된다.
+- 원하는 BaseUrl이 알아서 지정된다.
+
+<br />
+
+- 하지만 헷갈리는 경우를 대비하기 위해 나는 BaseURL을 작성해주는 것을 선호하게 됐다.
+- 즉 정리해보면 다음과 같다.
+
+```TSX
+// api폴더
+fetch(`${process.env.SERVER_BASE_URL}`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ email, password }),
+});
+```
+
+```TSX
+// api폴더
+fetch(`${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ email, password }),
+});
+```
+
+- 서버환경에서는 NEXT_PUBLIC를 작성하지 않아도 되지만, client 환경이라면 NEXT_PUBLIC를 꼭 붙여줘야한다.
+- 붙이지 않고 client에서 CLIENT_BASE_URL만 사용한다면, network에서 undefined를 만나게되고, 에러가 발생한다.
+
+<br />
+
+### 참고자료
+
+[How to set base URL based on environment variable in Next.js?](https://stackoverflow.com/questions/67240908/how-to-set-base-url-based-on-environment-variable-in-next-js)
