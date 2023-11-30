@@ -1,0 +1,18 @@
+### prisma의 env 파일 관리하기
+
+```JSON
+  "scripts": {
+    "postinstall": "prisma generate",
+    "dev": "npx prisma generate && next dev",
+    "build": "next build",
+    "db:push": "dotenv -e .env.development -- npx prisma db push",
+  },
+```
+
+- .env로만 사용하고 있었는데 이번에 배포하면서 .env.development, .env.production로 구분지어줬다.
+- .env.development에서 prisma db push를 써야할 때 .env가 아닌 .env.development를 인식하지 못했다.
+- 해당부분을 찾아본 결과 prisma 공식문서에서 권하는 방법은 dotenv를 사용하는 것이었다.
+
+[Using multiple .env files](https://www.prisma.io/docs/guides/development-environment/environment-variables/using-multiple-env-files)
+
+- 이제 npm run db:push를 하면 development환경에서 push가 가능하다.
