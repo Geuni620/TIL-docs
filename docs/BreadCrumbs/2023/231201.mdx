@@ -1,0 +1,53 @@
+## 만들면서 배우는 클린 아키텍처
+
+### 엔티티와 리포지토리가 무엇일까?
+
+엔티티
+
+- 비즈니스로직의 핵심을 담당
+- 비즈니스 로직과 관련된 데이터의 구조를 정의함.
+- 데이터의 집합, 저장되고 관리되어야하는 데이터를 의미한다.
+- 데이터베이스에서는 레코드를 의미함.
+- 영속성은 엔티티를 영구 저장하는 환경을 의미함.
+
+```JS
+class User {
+    constructor(id, name, email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+}
+```
+
+<br />
+
+리포지토리
+
+- 엔티티의 데이터 영속성을 관리하며, 시스템의 다른 부분들과의 결합도를 낮춤.
+- 엔티티의 영속성을 관리하는 클래스, 인터페이스를 말함.
+- 즉, 데이터베이스나 다른 영속성 메커니즘을 통해 엔티티의 저장, 검색, 업데이트, 삭제 등을 담당함.
+- 리포지토리는 엔티티와 영속성 메커니즘 사이의 중간자 역할을 하여, 엔티티가 비즈니스 로직에만 집중할 수 있도록 돕느다.
+
+```JS
+class UserRepository {
+    constructor() {
+        this.users = [];
+    }
+
+    // 사용자 추가
+    addUser(user) {
+        this.users.push(user);
+    }
+
+    // 모든 사용자 검색
+    findAll() {
+        return this.users;
+    }
+
+    // ID로 사용자 검색
+    findById(id) {
+        return this.users.find(user => user.id === id);
+    }
+}
+```
