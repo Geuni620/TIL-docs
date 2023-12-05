@@ -1,0 +1,33 @@
+### Next-auth에서 편하게 토큰을 제공하는 함수가 있음
+
+- 기존에 내가 알고 있던 방법은, account를 jwt에서 session으로 넘겨주어 useSession hooks으로 데이터를 불러오면 accessToken에 접근할 수 있다.
+- 이를 api 요청시 header에 싣어서 보냈는데, accessToken을 서버에서 받은 후, 소셜에 검증을 요청한 후 반환된 데이터가 true라면 데이터를 반환한다.
+- 근데 편하게 다음과 같이 작성할 수 있다면 더할나위 없이 편하다.
+
+```TSX
+// client
+async function myFunction() {
+  const csrfToken = await getCsrfToken()
+  /* ... */
+}
+
+
+// server
+import { getCsrfToken } from "next-auth/react"
+
+export default async (req, res) => {
+  const csrfToken = await getCsrfToken({ req })
+  /* ... */
+  res.end()
+}
+```
+
+- 심지어 서버 | 클라이언트 모두 요청할 수 있다.
+
+<br />
+
+- 조금 더 알아본 뒤 내용을 추가해야겠다!
+
+### 참고자료
+
+[getCsrfToken()](https://next-auth.js.org/getting-started/client)
