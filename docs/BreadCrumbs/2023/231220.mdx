@@ -4,16 +4,16 @@
 export const WORKLIFE = [
   {
     id: 1,
-    image: '/image/worklife/ingjae.svg',
-    title: '나만의 제조도 캐릭터',
-    description: '제조도 잉재라이브러리',
+    image: '-',
+    title: '-',
+    description: '-',
     // link: null,
   },
   {
     id: 2,
-    image: '/image/worklife/nanjang.png',
-    title: '자유로운 난장토론',
-    description: '제조도 난장독대',
+    image: '-',
+    title: '-',
+    description: '-',
   },
 ];
 ```
@@ -21,11 +21,9 @@ export const WORKLIFE = [
 - 이 경우엔 링크가 들어가는 경우도 있고 들어가지 않는 경우도 있다.
 - 링크가 들어가야하는 경우엔 링크를 기입하고, 아닐 경우엔 null처리했다
 
-- 기존에는 link가 없을 경우 null 값으로 처리했다
-
 <br />
 
-- 하지만 이번엔 link가 들어가는 경우만 기입하고, 나머지는 제거한 후 type을
+- 하지만 이번엔 link가 들어가는 경우만 기입하고, 나머지는 제거한 후 Type을 옵셔널체이닝으로 넣어주었다.
 
 ```TSX
 interface Item {
@@ -37,37 +35,10 @@ interface Item {
 }
 ```
 
-- 옵셔널 체이닝을 통해서 기입해주었다.
-
 <br />
 
-- 옵셔널 처리하고 나니, 이건 서버에서 예측하지 못하는게 아니라 예측가능한 null이라는 생각이 들어 다시 변경해주었다.
-
-```TSX
-interface Item {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  link: string | null;
-}
-```
-
-```TSX
-export const WORKLIFE = [
-  {
-    id: 0,
-    image: '-',
-    title: '-',
-    description: '-',
-    link: null,
-  },
-  {
-    id: 1,
-    image: '-',
-    title: '-',
-    description: '-',
-    link: 'https://',
-  },
-];
-```
+- 기존에는 서버에서 예측못하는 경우에는 undefined로 처리하고, 개발자가 예측가능한 빈 값이라면 null을 처리하려고 했었다.
+- 하지만 이 경우엔 해당 Item 타입이 매겨지는 컴포넌트는 공통컴포넌트이다.
+- 즉, link가 들어가는경우도 있고, 들어가지 않는 경우도 존재하는 것이다.
+- 이 경우 그 모든 Item에 해당하는 mocking data에 link를 null로 선언하는건 유지비용이 많이드는 작업이었다.
+- 그래서 옵셔널체이닝으로 타입을 매긴 후, link가 있을 경우를 분기처리하여 작업했다.
