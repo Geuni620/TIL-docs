@@ -1,0 +1,78 @@
+### useAutoVideoHooks
+
+hooks을 잘 관리해서 필요할 때 가져다 쓰면 엄청 편해진다.
+
+```TSX
+// useAutoPlayVideo.ts
+import { useEffect, useRef } from 'react';
+
+export const useAutoPlayVideo = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+
+        if (entry.isIntersecting) {
+          videoRef.current?.play();
+        } else {
+          videoRef.current?.pause();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => {
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current);
+      }
+    };
+  }, []);
+
+  return {
+    videoRef,
+  };
+};
+```
+
+- IntersectionObserver를 통해 video가 화면에 보이면 실행시키고, 보이지 않으면 중지시켰다
+- 그리고 실행이 끝났더라도 화면에서 사라졌다가 다시 돌아오면 실행되도록 해주었다.
+
+```TSX
+{ threshold: 0.5 }
+```
+
+- 이건 관찰대상 요소가 어느정도 화면에 보여야 이벤트를 발생시킬 것인지 정의하는 것이다.
+- threshold 값이 0~1사이의 숫자로 설정할 수 있고, 0.5는 대상 요소의 50%가 화면에 보일 때 이벤트를 발생시킨다.
+- 즉, 50%가 보이면 비디오가 실행되는 것이다.
+
+```TSX
+'use client';
+
+import { useAutoPlayVideo } from 'hooks/useAutoPlayVideo';
+
+interface AutoPlayVideoProps {
+  src: string;
+  className?: string;
+}
+
+export const AutoPlayVideo: React.FC<AutoPlayVideoProps> = ({
+  src,
+  className,
+}) => {
+  const { videoRef } = useAutoPlayVideo();
+
+  return (
+    <video ref={videoRef} className={className} muted>
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+};
+```
+
+- 해당 비디오의 사용은 다음과 같이 사용했다. videoRef를 video 태그에 적용해주면 되었다.
