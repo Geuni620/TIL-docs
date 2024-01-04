@@ -1,0 +1,43 @@
+### supabase
+
+RLS라는 개념이 존재한다.
+
+- Row Level security
+  - Postgres 데이터베이스를 보호할 수 있음
+  - 만약 백엔드 서버에서 API를 요청할 시 문제되지 않음, 이땐 RLS를 사용하지 않아도 됨
+  - 하지만 프론트에서 supabase로 데이터를 요청할 시, 프론트는 열려있는 상태이기 때문에 DB가 노출될 수 있음
+  - 이때 RLS를 사용했다면 DB를 보호할 수 있음
+
+<br />
+
+```TSX
+import { MapContainer } from 'lib/kakao-map';
+import { cookies } from 'next/headers';
+
+import { createClient } from '@/utils/supabase/server';
+
+export default async function Index() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+  const { data: highwayData } = await supabase
+    .from('highway-position')
+    .select('*');
+
+  return (
+    <div className="flex w-full flex-1 flex-col items-center gap-20">
+      <MapContainer data={highwayData} />
+    </div>
+  );
+}
+```
+
+- 실제 다음과 같이 데이터를 요청했었음. 이땐 supabase에 RLS를 true로 설정한 상태였음
+- 데이터를 맞게 요청했지만 data = [] 빈 배열을 반환했음
+- 그리고, RLS를 false로 변경하니 데이터를 온전히 받아올 수 있었음
+  - 필요하다면, Delete 정책을 만들어서, 특정 사용자만 삭제할 수 있도록 정책을 설정할 수 있음
+
+<br />
+
+### 참고자료
+
+[파이어베이스 킬러? 요즘 대세는 수파베이스!](https://youtu.be/tvX9f8FqMFI?si=IfVe5YmqPpXN-myD)
