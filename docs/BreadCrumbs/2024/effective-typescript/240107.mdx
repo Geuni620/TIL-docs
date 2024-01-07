@@ -1,0 +1,73 @@
+### 아이템.9
+
+- 화살표 함수의 타입 선언은 추론된 타입이 모호할 때가 있음
+
+```TS
+interface Person {
+  name: string;
+}
+
+const people = ["John", "Jane", "Joe"].map((name) => ({name}));
+// Person[]을 원했지만, { name: string }[]를 얻음
+```
+
+<br />
+
+```TS
+const people = ["John", "Jane", "Joe"].map((name) => ({name} as Person));
+// 이렇게 해야 Person[]을 얻을 수 있음
+// 단, 타입단언이기 때문에, 오류가 발생했을 때 런타임에서 오류를 걸러주지 못함
+```
+
+<br />
+
+```TS
+const people: Person[] = ["John", "Jane", "Joe"].map(
+  (name): Person => ({name})
+);
+// 원하는 타입을 직접명시하고, 타입스크립트가 할당문의 유효성을 검사하게 하기 위해
+// 반환타입과, name 모두 타입을 명시했음
+```
+
+<br />
+
+- 타입단언을 꼭 써야하는 경우
+  - 타입체커가 추론한 타입보다 내가 판단하는 타입이 더 정확할 때 의미가 있음
+
+```TS
+document.querySelector("#myButton")?.addEventListener("click", (e) => {
+  e.currentTarget; // 타입은 EventTarget
+  const button = e.currentTarget as HTMLButtonElement;
+  button; // 타입은 HTMLButtonElement
+});
+```
+
+- 타입스크립트는 DOM에 접근할 수 없기 때문에 #myButton이 버튼 엘리먼트인지 알지 못한다.
+- 타입스크립트가 알지 못하는 정보를 가지고 있기 때문에 여기서 타입단언문을 쓰는게 타당함
+
+<br />
+
+- 타입단언문의 임의의 타입 간에 변환을 할 수는 없음
+- `HTMLElement`는 HTMLElement | null의 서브타입이기 때문에 이러한 타입 단언은 동작함
+- HTMLButtonElement는 EventTarget의 서브타입이기 때문에 역시 동작함
+- 그러나, Person과 HTMLElement는 서로 관련이 없기 때문에 타입단언문은 동작하지 않음
+
+```TS
+interface Person {
+  name: string;
+}
+
+const body = document.body;
+const el = body as Person;
+// 'HTMLElement' 형식을 'Person' 형식으로 변환한 작업은 실수일 수 있습니다.
+// 두 형식이 서로 충분히 겹치지 않기 때문입니다. 의도적으로 변환한 경우에는 먼저 'unknown'으로 식을 변환합니다.
+// 'name' 속성이 'HTMLElement' 형식에 없지만 'Person' 형식에서 필수입니다.ts(2352)
+```
+
+- 위 오류를 해결하려면 unknown 타입을 거쳐가야함
+- 모든 타입은 unknown의 서브타입이기 때문에 unknown이 포함된 단언문은 항상 동작한다.
+- unknown 단언은 임의의 타입 간에 변환을 가능케하지만, unknown을 사용한 이상 적어도 무언가 위험한 동작을 하고 있음
+
+```TS
+const el = document.body as unknown as Person;
+```
