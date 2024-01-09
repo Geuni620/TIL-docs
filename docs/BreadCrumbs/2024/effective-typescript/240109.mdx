@@ -1,0 +1,133 @@
+### 아이템 10. 객체 래퍼타입 피하기
+
+- string '기본형'에는 메서드가 없지만, 자바스크립트에는 메서드를 가지는 String '객체'타입이 정의되어 있음
+- 자바스크립트 기본형과 객체 타입은 서로 자유롭게 변환함.
+- string 기본형에는 charAt 같은 메서드를 사용할 때, 자바스크립트는 기본형을 String 객체로 래핑하고, 메서드를 호출하고, 마지막에는 래핑한 객체를 버림
+
+<br />
+
+- 다른 기본형에도 동일하게 객체 래퍼 타입이 존재함
+  - number | Number
+  - boolean | Boolean
+  - symbol | Symbol
+  - bigint | BigInt
+- 단, null과 undefined는 객체 래퍼가 없음
+
+<br />
+
+- 자바스크립트와 달리 타입스크립트는 기본형과 객체 래퍼 타입을 별도로 모델링한다.
+
+```TS
+function getStringLen(foo: String) {
+  return foo.length;
+}
+
+getStringLen("hello world");
+getStringLen(new String("hello world"));
+
+function isGreeting(phrase: String) {
+  return ["hello", "good day"].includes(phrase);
+}
+
+
+// 'String' 형식의 인수는 'string' 형식의 매개 변수에 할당될 수 없습니다.
+// string'은(는) 기본 개체이지만 'String'은(는) 래퍼 개체입니다. 가능한 경우 'string'을(를) 사용하세요.ts(2345)
+```
+
+- 기본형 타입을 객체 래퍼에 할당하는 구문은 오해하기 쉽고, 굳이 그렇게 할 필요도 없음
+- 그냥 **기본형 타입을 사용하는 것이 낫다.**
+
+<br />
+
+### 아이템 11. 잉여 속성 체크의 한계 인지하기
+
+```TS
+interface Room {
+  numDoors: number;
+  ceilingHeightFt: number;
+}
+
+const r: Room = {
+  numDoors: 1,
+  ceilingHeightFt: 10,
+  elephant: "persent",
+}; // 개체 리터럴은 알려진 속성만 지정할 수 있으며 'Room' 형식에 'elephant'이(가) 없습니다.ts(2353)
+
+
+const obj = {
+  numDoors: 1,
+  ceilingHeightFt: 10,
+  elephant: "persent",
+};
+
+const r: Room = obj; // 정상
+```
+
+- Room타입에 생뚱맞게 elephant 속성이 있는 것이 어색하긴 하지만, 구조적 타이핑 관점으로 생각해보면 오류가 발생하지 않아야한다.
+- 임시변수를 도입해 보면 알 수 있는 obj 객체는 Room 타입에 할당이 가능함
+  - obj의 타입추론은 `{ numDoors: number; ceilingHeightFt: number; elephant: string; }` 이므로, Room 타입의 부분집합을 포함함
+  - Room 타입에는 없는 속성이지만, Room 타입에 할당이 가능함
+
+<br />
+
+- 타입스크립트는 단순히 런타임에서 예외를 던지는 코드에 오류를 표시하는 것뿐 아니라, 의도와 다르게 작성된 코드까지 찾으려고 함
+
+```TS
+interface Options {
+  title: string;
+  darkMode?: boolean;
+}
+
+function createWindow(options: Options) {
+  if (options.darkMode) {
+    // setDartMode();
+  }
+}
+
+createWindow({title: "test", darkmode: true}); // 개체 리터럴은 알려진 속성만 지정할 수 있지만 Options 형식에 darkmode 이(가) 없습니다. darkMode 을(를) 쓰려고 했습니까?
+```
+
+- 앞의 코드를 실행하면 런타임에 어떠한 종류의 오류도 발생하지 않지만, 타입스크립트가 알려주는 오류 메시지처럼 의도한 대로 동작하지 않을 수 있음
+- Options 타입은 범위가 매우 넓기 때문에, 순수한 구조적 타입 체커는 이런 종류의 오류를 찾아내지 못함
+  - darkMode 속성에 boolean 타입이 아닌 다른 타입의 값이 지정된 경우를 제외하면, string 타입인 title 속성과 '또 다른 어떤 속성'을 가지는 모든 객체는 Options 타입의 범위에 속한다
+
+```TS
+const o1: Options = document; // 정상
+const o2: Options = new HTMLAnchorElement(); // 정상
+```
+
+- document, HTMLAnchorElement의 인스턴스 모두 string 타입인 title 속성을 가지고 있기 때문에 할당문은 정상
+
+<br />
+
+- 선택적 속성만 가지는 '약한' 타입에도 비슷한 체크가 동작함
+
+```TS
+interface LineChartOptions {
+  logscale?: boolean;
+  invertedYAxis?: boolean;
+  areaChart?: boolean;
+}
+
+const opts = {logScale: true};
+const o: LineChartOptions = opts; // { logScale: boolean; }' 유형에 'LineChartOptions' 유형과 공통적인 속성이 없습니다.ts(2559)
+```
+
+- 구조적 관점에서 ㅣineChartOptions 타입은 모든 속성이 선택적이므로 모든 객체를 포함할 수 있음
+- 이런 약한 타입에 대해서 타입스크립트는 값 타입과 선언 타입에 공통된 속성이 있는지 확인하는 별도의 체크를 수행함
+- 공통 속성 체크는 잉여 속성 체크와 마찬가지로 오타를 잡는 데 효과적이며 구조적으로 엄격하지는 않다.
+- 그러나, 잉여 속성 체크와 다르게, 약한 타입과 관련된 할당문마다 수행 됨
+
+<br />
+
+- 잉여 속성 체크는 구조적 타이핑 시스템에서 허용되는 속성 이름의 오타 같은 실수를 잡는 데 효과적인 방법
+- 선택적 필드를 포함하는 Options 같은 타입에 특히 유용한 반면, 적용 범위도 매우 제한적이며 오직 객체 리터럴에만 적용된다.
+- 이러한 한계점을 인지하고 잉여 속성 체크와 일반적인 타입체크를 구분한다면, 두 가지 모두의 개념을 잡는데에 도움이 될 것
+
+<br />
+
+### 요약
+
+- 객체 리터럴을 변수에 할당하거나, 함수에 매개변수로 전달할 때 잉여 속성 체크가 수행됨
+- 잉여 속성 체크는 오류를 찾는 효과적인 방법이지만, 타입스크립트 타입 체커가 수행하는 일반적인 구조적 할당 가능성 체크와 역할이 다르다.
+- 잉여 속성 체크에는 한계가 있다. > 임시 변수를 도입하면 잉여 속성 체크를 건너뛸 수 있는 점을 기억할 것
