@@ -1,0 +1,233 @@
+### 아이템 13. 타입과 인터페이스의 차이점 알기
+
+인터페이스는 타입에 없는 몇 가지 기능이 있음
+
+```TS
+interface IState {
+  name: string;
+  capital: string;
+}
+
+const wYoming: IState = {
+  name: "Wyoming",
+  capital: "Cheyenne",
+  population: 500_000, // 개체 리터럴은 알려진 속성만 지정할 수 있으며 'IState' 형식에 'population'이(가) 없습니다.ts(2353)
+};
+```
+
+위와 같이 작성하면 population에는 타입정의가 없어서 에러가 난다.
+하지만, 다음과 같이 `선언 병합`을 사용하면 에러를 해결할 수 있다.
+
+```TS
+interface IState {
+  name: string;
+  capital: string;
+}
+
+// 아래에 똑같은 Interface 명으로 population을 추가해준다.
+interface IState {
+  population: number;
+}
+
+const wYoming: IState = {
+  name: "Wyoming",
+  capital: "Cheyenne",
+  population: 500_000, // 에러가 나지 않음.
+};
+```
+
+<br />
+
+### 아이템 14. 타입 연산과 제네릭 사용으로 반복 줄이기
+
+```TS
+interface State {
+  userId: string;
+  pageTitle: string;
+  recentFiles: string[];
+  pageContents: string;
+}
+
+interface TopNavState {
+  userId: string;
+  pageTitle: string;
+  recentFiles: string[];
+}
+```
+
+- 위와 같이 State 인터페이스의 부분집합만으로 TopNavState를 만들 경우 저렇게 각각 다 선언해줘야할까?
+
+```TS
+type TopNavState = {
+  userId: State["userId"];
+  pageTitle: State["pageTitle"];
+  recentFiles: State["recentFiles"];
+};
+
+// 또는
+type TopNavState = {
+  [K in "userId" | "pageTitle" | "recentFiles"]: State[K];
+};
+```
+
+<br />
+
+업데이트가 되는 클래스를 정의한다면, update 메서드 매개변수의 타입은 생성자와 동일한 매개변수이면서, 타입 대부분이 선택적이어야 한다.
+
+```ts
+interface Options {
+  width: number;
+  height: number;
+  color: string;
+  label: string;
+}
+
+interface OptionsUpdate {
+  width?: number;
+  height?: number;
+  color?: string;
+  label?: string;
+}
+
+class UIWidget {
+  constructor(init: Options) {
+    // ...
+  }
+
+  update(options: OptionsUpdate) {
+    // ...
+  }
+}
+```
+
+매핑된 타입과 keyof를 사용하면 Options으로부터 OptionsUpdate를 만들 수 있다.
+
+```ts
+type OptionsKeys = keyof Options; // "width" | "height" | "color" | "label"
+
+type OptionsUpdate = {
+  [K in keyof Options]?: Options[K];
+};
+```
+
+매핑된 타입은 순회하면서 Options 내 k 값에 해당하는 속성이 있는지 찾음.
+
+```TS
+// 또는 Partial<Options>를 사용해도 된다.
+class UIWidget {
+  constructor(init: Options) {
+    // ...
+  }
+
+  update(options: Partial<Options>) {
+    // ...
+  }
+}
+```
+
+<br />
+
+값의 형태에 해당하는 타입을 정의하고 싶을 때도 있음
+
+```TS
+const INIT_OPTIONS ={
+  width: 640,
+  height: 480,
+  color: "#00FF00",
+  label: "VGA",
+};
+
+interface Options {
+  width: number;
+  height: number;
+  color: string;
+  label: string;
+}
+
+// 위의 INIT_OPTIONS를 Options 타입으로 만들고 싶을 때
+type Options = typeof INIT_OPTIONS; // { width: number; height: number; color: string; label: string; }
+```
+
+함수나 메서드의 반환 값에 명명된 타입을 만들고 싶을 수도 있음
+
+```TS
+function getUserInfo(userId: string) {
+  // ...
+
+  return {
+    userId,
+    name,
+    age,
+    height,
+    weight,
+    favoriteColor,
+  }
+}
+// 주문을 반환하는 타입은, { userId: string; name: string; age: number; height: number; weight: number; favoriteColor: string; }
+```
+
+이런 경우엔, 다음과 같이 작성할 수 있음
+
+```TS
+type UserInfo = ReturnType<typeof getUserInfo>
+
+```
+
+<br />
+
+함수에서 매개변수로 매핑할 수 있는 값을 제한하기 위해 타입 시스템을 사용하는 것처럼 제네릭 타입에서 매개변수를 제한할 수 있는 방법이 필요함
+제네릭 타입에서 매개변수를 제한할 수 있는 방법은 extends를 사용하는 것
+
+```TS
+interface Name {
+  first: string;
+  last: string;
+}
+
+type DancingDuo<T extends Name> = [T, T];
+
+const couple1: DancingDuo<Name> = [
+  {first: "Fred", last: "Astaire"},
+  {first: "Ginger", last: "Rogers"},
+];
+
+const couple2: DancingDuo<{first: string}> = [
+  // ~~~~~~~~~~~~~~~~ Error! ~~~~~~~~~~~~~~~~
+  //  'Name' 타입에 필요한 'last' 속성이 '{first:string}' 타입에 없습니다.
+  {first: "Sonny"},
+  {first: "Cher"},
+];
+
+```
+
+`{first: string}`은 Name을 확장하지 않기 때문에 오류가 발생함.
+
+<br />
+
+앞에 나온 Pick의 정의는 extends를 사용해서 완성할 수 있음
+타입 체커를 통해 기존 예제를 실행해보면 오류가 발생한다.
+
+```TS
+type Pick<T, K> = {
+  [T in K]: T[K];
+  // 'K' 형식을 인덱스 형식 'T'에 사용할 수 없습니다.ts(2536)
+};
+```
+
+K는 T 타입과 무관하고 범위가 너무 넓음
+K는 인덱스로 사용될 수 있는 string | number | symbol이 되어야하며 실제로는 범위를 조금 더 좁힐 수 있음.
+K는 실제로 T의 키의 부분 집합, 즉 keyof T가 되어야함
+
+```TS
+type Pick<T extends keyof T, K> = {
+  [T in K]: T[K];
+}; // 정상
+
+interface Name {
+  first: string;
+  last: string;
+}
+
+type FirstLast = Pick<Name, "first" | "last">; // 정상
+type FirstMiddle = Pick<Name, "first" | "middle">; // 에러
+```
