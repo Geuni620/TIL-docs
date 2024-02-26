@@ -1,0 +1,25 @@
+### git revert
+
+```
+git revert <hash>
+```
+
+- hash명을 입력하면 해당 hash명까지 제거 됨
+- 즉 다음과 같음
+
+```
+// 순차적으로 커밋
+commit 1 // commit name: commit 1
+commit 2 // commit name: commit 2
+commit 3 // commit name: commit 3
+commit 4 // commit name: commit 4
+```
+
+- 현재 commit은 4까지 진행됐음
+- 여기서 `git commit <commit 2 hash>`를 입력하면, 해당 commit은 1로 돌아가고, commit 2, 3, 4는 삭제됨
+
+<br />
+
+### 참고자료
+
+[git reset, revert로 이전 커밋으로 돌리기](https://kyounghwan01.github.io/blog/etc/git/git-reset-revert/#reset)
