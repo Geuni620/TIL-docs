@@ -1,0 +1,21 @@
+### Javascript
+
+```TSX
+  const onChangeBoxUsage = (changedKeys: number[]) => {
+    const isConfirmed = window.confirm('박스 사용여부를 변경하시겠습니까?');
+
+    if (isConfirmed) {
+      updateBoxUsage(changedKeys);
+      console.log('여기가 실행');
+      return;
+    }
+
+    console.log('여기는 동작하지');
+  };
+```
+
+- 만약 onChangeBoxUsage에서 isConfin
+
+- 만약 onChangeBoxUsage에서 isConfirmed가 false일 경우,
+  - '여기는 동작하지'가 뜸
+- true일 경우, '여기가 실행'이 뜸, 이후 '여기는 동작하지' 가 뜨지 않음. 함수 종료
